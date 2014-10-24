@@ -176,4 +176,8 @@ if __name__=='__main__':
             help="List of labels in list format eg ['precentral','superior-temporal']")
 
     args = parser.parse_args()
+
+    if not (args.side or args.labelList):
+        parser.error('No action requested, add -s and -l (side and labels)')
+
     main(args)
