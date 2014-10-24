@@ -64,6 +64,19 @@ def label2annot(location, subject,side,labelList):
     command = re.sub('\s+',' ',command)
     os.popen(command).read()
 
+def bigROIchange(roiline):
+    roiline = re.sub('OFC',"parsorbitalis,medialorbitofrontal,lateralorbitofrontal",roiline)
+    roiline = re.sub('MPFC',"caudalanteriorcingulate, rostralanteriorcingulate, superiorfrontal",roiline)
+    roiline = re.sub('LPFC',"parstriangularis, rostralmiddlefrontal, frontalpole, parsopercularis",roiline)
+    roiline = re.sub('SMC',"precentral,caudalmiddlefrontal,postcentral,paracentral",roiline)
+    roiline = re.sub('PC',"inferiorparietal,supramarginal,precuneus,posteriorcingulate,isthmuscingulate,superiorparietal",roiline)
+    roiline = re.sub('MTC',"ctx-lh-entorhinal,ctx-lh-parahippocampal,ctx-lh-fusiform",roiline)
+    roiline = re.sub('LTC',"transversetemporal,superiortemporal,bankssts,inferiortemporal,middletemporal,temporalpole",roiline)
+    roiline = re.sub('OCC',"ctx-lh-pericalcarine,ctx-lh-lingual,ctx-lh-lateraloccipital,ctx-lh-cuneus",roiline)
+    roiline = re.sub('\s+','',roiline)
+    return roiline
+
+
 def makeColorTable(labelList,color,side):
     toWrite_header = '#$Id: FreeSurferColorLUT.txt,v 1.38.2.1 2007/08/20 01:52:07 nicks Exp $\n\
 #No. Label Name:                            R   G   B   A\n'
@@ -129,8 +142,10 @@ def main(args):
     # run annot2label using the label input
     annot2label(subject,args.side)
 
+
+    labelList_initial = bigROIchange(args.labelList)
     # format the label list
-    labelList_formatted = catchLabelList(args.labelList)
+    labelList_formatted = catchLabelList(labelList_initial)
 
     # make color table
     makeColorTable(labelList_formatted,args.color,args.side)
