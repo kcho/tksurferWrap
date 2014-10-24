@@ -41,6 +41,7 @@ def annot2label(subject,side):
                     side = side,
                     outdir = os.getcwd())
     command = re.sub('\s+',' ',command)
+    print '\t'+command
     os.popen(command).read()
 
 def label2annot(location, subject,side,labelList):
@@ -62,6 +63,7 @@ def label2annot(location, subject,side,labelList):
         command = command + ' --l ./'+labelFile
 
     command = re.sub('\s+',' ',command)
+    print '\t'+command
     os.popen(command).read()
 
 def bigROIchange(roiline):
@@ -152,14 +154,15 @@ def main(args):
 
     # merge them back to annot
     label2annot(args.subjectDirectory,subject,args.side,labelList_formatted)
-    removeList = [x for x in os.listdir(os.getcwd()) if x.endswith('label') or x == 'ctab.txt' or x =='surfer.log']
+    removeList = [x for x in os.listdir(os.getcwd()) if x.endswith('label') or x =='surfer.log']
     for i in removeList:
         os.remove(os.path.join(os.getcwd(),i))
 
     # print tksurfer command
+    print '\texport SUBJECTS_DIR={0}'.format(args.subjectDirectory)
     command = 'tksurfer {0} {1} pial -annotation kscript'.format(subject,args.side)
+    print '\t'+command
     os.popen(command)
-    os.remove(os.path.join(args.subjectDirectory,subject,'label',args.side+'.kscript.annot'))
 
 
 if __name__=='__main__':
