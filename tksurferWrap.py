@@ -72,9 +72,9 @@ def bigROIchange(roiline):
     roiline = re.sub('LPFC',"parstriangularis, rostralmiddlefrontal, frontalpole, parsopercularis",roiline)
     roiline = re.sub('SMC',"precentral,caudalmiddlefrontal,postcentral,paracentral",roiline)
     roiline = re.sub('PC',"inferiorparietal,supramarginal,precuneus,posteriorcingulate,isthmuscingulate,superiorparietal",roiline)
-    roiline = re.sub('MTC',"ctx-lh-entorhinal,ctx-lh-parahippocampal,ctx-lh-fusiform",roiline)
+    roiline = re.sub('MTC',"entorhinal,parahippocampal,fusiform",roiline)
     roiline = re.sub('LTC',"transversetemporal,superiortemporal,bankssts,inferiortemporal,middletemporal,temporalpole",roiline)
-    roiline = re.sub('OCC',"ctx-lh-pericalcarine,ctx-lh-lingual,ctx-lh-lateraloccipital,ctx-lh-cuneus",roiline)
+    roiline = re.sub('OCC',"pericalcarine,lingual,lateraloccipital,cuneus",roiline)
     roiline = re.sub('\s+','',roiline)
     return roiline
 
