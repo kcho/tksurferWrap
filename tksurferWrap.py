@@ -34,7 +34,11 @@ def get_freesurfer_directory(directory):
     else:
         return subject[0]
 
-def annot2label(subject,side):
+def annot2label(subject,side,directory):
+
+    os.environ["FREESURFER_HOME"] = '/Applications/freesurfer'
+    os.environ["SUBJECTS_DIR"] = directory
+
     command = 'mri_annotation2label \
             --subject {subject} \
             --hemi {side} \
@@ -59,27 +63,33 @@ def label2annot(location, subject,side,labelList):
                     name = 'kscript',
                     colortable = colortable)
 
+    print labelList, '(((labellist)))'
     for label in labelList:
-        print label
+        #print label
         labelFile = ''.join([x for x in os.listdir(os.getcwd()) if x.endswith('.'+label+'.label')])
-        print labelFile
+        #print labelFile
+        print labelFile, '(((labelFile)))'
         command = command + ' --l '+labelFile
 
     command = re.sub('\s+',' ',command)
     print '\t'+command
     os.popen(command).read()
 
-def bigROIchange(roiline):
-    roiline = re.sub('OFC',"parsorbitalis,medialorbitofrontal,lateralorbitofrontal",roiline)
-    roiline = re.sub('MPFC',"caudalanteriorcingulate, rostralanteriorcingulate, superiorfrontal",roiline)
-    roiline = re.sub('LPFC',"parstriangularis, rostralmiddlefrontal, frontalpole, parsopercularis",roiline)
-    roiline = re.sub('SMC',"precentral,caudalmiddlefrontal,postcentral,paracentral",roiline)
-    roiline = re.sub('PC',"inferiorparietal,supramarginal,precuneus,posteriorcingulate,isthmuscingulate,superiorparietal",roiline)
-    roiline = re.sub('MTC',"entorhinal,parahippocampal,fusiform",roiline)
-    roiline = re.sub('LTC',"transversetemporal,superiortemporal,bankssts,inferiortemporal,middletemporal,temporalpole",roiline)
-    roiline = re.sub('OCC',"pericalcarine,lingual,lateraloccipital,cuneus",roiline)
-    roiline = re.sub('\s+','',roiline)
-    return roiline
+def bigROIchange(labelList):
+    new_label_list = []
+    for roiline in labelList:
+        print roiline
+        roiline = re.sub('OFC',"parsorbitalis,medialorbitofrontal,lateralorbitofrontal",roiline)
+        roiline = re.sub('MPFC',"caudalanteriorcingulate, rostralanteriorcingulate, superiorfrontal",roiline)
+        roiline = re.sub('LPFC',"parstriangularis, rostralmiddlefrontal, frontalpole, parsopercularis",roiline)
+        roiline = re.sub('SMC',"precentral,caudalmiddlefrontal,postcentral,paracentral",roiline)
+        roiline = re.sub('PC',"inferiorparietal,supramarginal,precuneus,posteriorcingulate,isthmuscingulate,superiorparietal",roiline)
+        roiline = re.sub('MTC',"entorhinal,parahippocampal,fusiform",roiline)
+        roiline = re.sub('LTC',"transversetemporal,superiortemporal,bankssts,inferiortemporal,middletemporal,temporalpole",roiline)
+        roiline = re.sub('OCC',"pericalcarine,lingual,lateraloccipital,cuneus",roiline)
+        roiline = re.sub('\s+','',roiline)
+        new_label_list.append(roiline)
+    return new_label_list
 
 
 def makeColorTable(labelList,color,side):
@@ -102,14 +112,16 @@ def makeColorTable(labelList,color,side):
     else:
         lines = lines[466:503]
 
+    #print side
     for num,label in enumerate(labelList):
-        foundLine = ''.join([x for x in lines if side+'-'+label in x])
+        #print side, label, 'hiaehwfiahweifahewf'
+        foundLine = ''.join([x for x in lines if 'ctx-'+side+'-'+label in x])
 
         #number change
         foundLine = re.sub('^\d{4}',str(num+1),foundLine)
         #colour change
         foundLine = re.sub('\d{1,3}\s+\d{1,3}\s+\d{1,3}\s+0.*$',
-                color + ' 0',foundLine)
+                ' '.join(color) + ' 0',foundLine)
 
         toWrite_body = toWrite_body+''.join(foundLine)
 
@@ -125,19 +137,6 @@ def makeColorTable(labelList,color,side):
         f.write(toWrite_merged)
 
 
-def catchLabelList(comma_sep_labelList):
-    toList = comma_sep_labelList.strip().split(',')
-
-    #allLabels = [x for x in os.listdir(os.getcwd()) if x.endswith('label')]
-
-    #labelList_formatted=[]
-    #for label in toList:
-        #labelList_formatted.append(re.search('\w{2}\.'+label+'\.label',
-            #' '.join(allLabels),
-            #re.IGNORECASE).group(0))
-
-    #return labelList_formatted
-    return toList
 
 def main(args):
     # Set environment
@@ -151,12 +150,11 @@ def main(args):
     print subject
 
     # run annot2label using the label input
-    annot2label(subject,args.side)
+    annot2label(subject,args.side,args.subjectDirectory)
 
-
-    labelList_initial = bigROIchange(args.labelList)
     # format the label list
-    labelList_formatted = catchLabelList(labelList_initial)
+    labelList_formatted = bigROIchange(args.labelList)
+    print labelList_formatted
 
     # make color table
     makeColorTable(labelList_formatted,args.color,args.side)
@@ -195,12 +193,12 @@ if __name__=='__main__':
             help="Side [ lh / rh ]",
             default='lh')
 
-    parser.add_argument('-c','--color',
+    parser.add_argument('-c','--color',nargs=3,
             help="color in RGB eg '255 0 0'",
             default = '255 0 0')
 
-    parser.add_argument('-l','--labelList',
-            help="List of labels in list format eg ['precentral','superior-temporal']")
+    parser.add_argument('-l','--labelList',nargs='+',
+            help="Space separated list of labels eg ['precentral','superior-temporal']")
 
     args = parser.parse_args()
 
