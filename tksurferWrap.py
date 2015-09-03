@@ -5,6 +5,7 @@ import os
 import shutil
 import argparse
 import textwrap
+import getpass
 
 def walklevel(some_dir, level=1):
     some_dir = some_dir.rstrip(os.path.sep)
@@ -59,8 +60,10 @@ def label2annot(location, subject,side,labelList):
                     colortable = colortable)
 
     for label in labelList:
-        labelFile = ''.join([x for x in os.listdir(os.getcwd()) if label in x])
-        command = command + ' --l ./'+labelFile
+        print label
+        labelFile = ''.join([x for x in os.listdir(os.getcwd()) if x.endswith('.'+label+'.label')])
+        print labelFile
+        command = command + ' --l '+labelFile
 
     command = re.sub('\s+',' ',command)
     print '\t'+command
@@ -85,7 +88,9 @@ def makeColorTable(labelList,color,side):
 #0   Unknown                                 0   0   0   0' + '\n'
 
     toWrite_body = ''
-    with open('/Applications/freesurfer/FreeSurferColorLUT.txt','rb') as f:
+    user_name = getpass.getuser()
+    with open('/Users/{0}/FreeSurferColorLUT.txt'.format(user_name),
+        ,'rb') as f:
         lines = f.readlines()
 
     if side == 'lh':
@@ -94,7 +99,7 @@ def makeColorTable(labelList,color,side):
         lines = lines[466:503]
 
     for num,label in enumerate(labelList):
-        foundLine = ''.join([x for x in lines if label in x])
+        foundLine = ''.join([x for x in lines if side+'-'+label in x])
 
         #number change
         foundLine = re.sub('^\d{4}',str(num+1),foundLine)
