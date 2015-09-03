@@ -89,8 +89,13 @@ def makeColorTable(labelList,color,side):
 
     toWrite_body = ''
     user_name = getpass.getuser()
-    with open('/Users/{0}/FreeSurferColorLUT.txt'.format(user_name),'rb') as f:
-        lines = f.readlines()
+    try:
+        with open('/Users/{0}/FreeSurferColorLUT.txt'.format(user_name),'rb') as f:
+            lines = f.readlines()
+    except:
+        with open('/Applications/freesurfer/FreeSurferColorLUT.txt'.format(user_name),'rb') as f:
+            lines = f.readlines()
+
 
     if side == 'lh':
         lines = lines[430:466]
